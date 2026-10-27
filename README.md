@@ -1,4 +1,4 @@
-# 🛰️ TLSF-CD: Temporal Localization and SAM-Guided Label Fusion for Semi-Supervised Change Detection
+# 🛰️ TLSF-CD: Temporal Localization and SAM3-Guided Label Fusion for Semi-Supervised Building Change Detection
 
 TLSF-CD is a semi-supervised remote sensing change detection framework that combines temporal localization and SAM-guided label fusion to improve pseudo-label quality with limited pixel-level annotations.
 
@@ -71,7 +71,7 @@ The paper evaluates TLSF-CD on LEVIR-CD, WHU-CD, and GZ-CD. This README highligh
 
 Table I compares semi-supervised change detection methods using 5%, 10%, 20%, and 40% labeled training samples of LEVIR-CD dataset. TLSF-CD achieves the highest F1 score and IoU at every labeled ratio. With only 5% labeled data, it reaches **91.21% F1** and **83.84% IoU**. Its F1 score exceeds CBFFNet by **0.67 percentage points** and is **0.73 percentage points** below the fully supervised result.
 
-<img width="1738" height="773" alt="image" src="https://github.com/user-attachments/assets/de4b6e67-1f6b-4c3c-84f5-448a8c1baa37" />
+
 
 
 ### 🖼️ Visual Comparison
