@@ -25,6 +25,14 @@ The framework uses a DINOv2-Base encoder and a DPT-based decoder to jointly prod
 
 
 
+## 🧠 Model Configuration
+
+TLSF-CD adopts a teacher–student framework. The student uses a pretrained DINOv2-Base encoder to extract features from the two temporal images. Features from layers 2, 5, 8, and 11 are processed by three DPT-based heads: a change detection head and two temporal localization heads for T1 and T2. The encoder is fine-tuned during training. In the current model configuration, the DPT feature width is 128 and the four projection widths are 96, 192, 384, and 768.
+
+The temporal localization heads predict the presence of change-related objects in each temporal image. Their semantic features guide a spatial gating module that enhances change-sensitive regions while suppressing background interference. An exponential moving average (EMA) copy of the student serves as the teacher for pseudo-label generation.
+
+A frozen SAM3 model provides object-level segmentation priors. The text prompts “Building”, “House”, and “Roof” are applied to each temporal image independently. Unmatched change objects are further processed using automatically generated point and box prompts. A SAM3 mask is accepted when its overlap with the corresponding teacher-predicted instance reaches the IoU threshold of 0.7; otherwise, the teacher prediction is retained.
+
 
 ## 🗺️ Datasets
 
@@ -40,28 +48,47 @@ LEVIR-CD contains 637 original bi-temporal image pairs. WHU-CD comprises aerial 
 
 Experiments consider different proportions of labeled training samples to assess performance under limited supervision. Cross-dataset experiments additionally use labeled samples from the target dataset and unlabeled samples from another dataset.
 
-## ⚙️ Experimental Setup
+## ⚙️ Training Details
 
-| Item | Setting |
+| Setting | Value |
 | --- | --- |
 | Framework | PyTorch |
-| GPU | One NVIDIA GeForce RTX 3090, 24 GB |
-| Encoder | DINOv2-Base |
-| Decoder | DPT-based decoder |
-| Input size | 256 × 256 patches resized to 252 × 252 for the network |
-| SAM input | Edge-padded to a multiple of 16, then aligned with 252 × 252 predictions |
-| SAM text prompts | “Building”, “House”, “Roof” |
+| Hardware | One NVIDIA GeForce RTX 3090 GPU with 24 GB memory |
+| Input preparation | Non-overlapping 256 × 256 patches resized to 252 × 252 for DINOv2; padded to a multiple of 16 for SAM3 and aligned back to 252 × 252 |
 | Batch size | 4 |
 | Training epochs | 100 |
 | Optimizer | AdamW |
+| AdamW coefficients | β₁ = 0.9, β₂ = 0.999 |
 | Weight decay | 0.01 |
-| Encoder learning rate | 5 × 10⁻⁶ |
-| Decoder learning rate | 2 × 10⁻⁴ |
+| Initial encoder learning rate | 5 × 10⁻⁶ |
+| Initial decoder learning rate | 2 × 10⁻⁴ |
 | Learning rate schedule | Polynomial decay |
-| Instance-matching IoU threshold | 0.7 |
-| Confidence threshold | 0.95 |
+| Pseudo-label confidence threshold | 0.95 |
+| SAM instance-matching IoU threshold | 0.7 |
+| Maximum EMA coefficient | 0.996 |
 
-Weak augmentation includes random cropping, scaling, and horizontal flipping. Strong augmentation includes CutMix, color jittering, grayscale conversion, and Gaussian blur.
+Weak augmentation includes random cropping, scaling, and horizontal flipping. Strong augmentation includes CutMix, color jittering, grayscale conversion, and Gaussian blur. The teacher generates pseudo-labels from weakly augmented unlabeled images, which supervise two strongly augmented views of the student.
+
+The supervised objective is a cross-entropy loss on labeled change masks. The unsupervised objective uses confidence-filtered pseudo-labels, while the two temporal localization heads are trained with an auxiliary combination of cross-entropy and Dice loss.
+
+SAM3 masks and teacher predictions are progressively fused using
+
+```math
+\lambda(t)=\exp\left(-\frac{t}{t_{\max}}\right).
+```
+
+The unsupervised weight is
+
+```math
+\lambda_u(t)=1-\lambda(t),
+```
+
+giving the overall objective
+
+```math
+\mathcal{L}=\mathcal{L}_l+\lambda_u(t)\left(\mathcal{L}_u+\mathcal{L}_{\mathrm{aux}}\right).
+```
+
 
 ## 📊 Representative Results on LEVIR-CD
 
