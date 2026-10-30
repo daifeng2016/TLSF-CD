@@ -27,11 +27,20 @@ The framework uses a DINOv2-Base encoder and a DPT-based decoder to jointly prod
 
 ## 🧠 Model Configuration
 
-TLSF-CD adopts a teacher–student framework. The student uses a pretrained DINOv2-Base encoder to extract features from the two temporal images. Features from layers 2, 5, 8, and 11 are processed by three DPT-based heads: a change detection head and two temporal localization heads for T1 and T2. The encoder is fine-tuned during training. In the current model configuration, the DPT feature width is 128 and the four projection widths are 96, 192, 384, and 768.
-
-The temporal localization heads predict the presence of change-related objects in each temporal image. Their semantic features guide a spatial gating module that enhances change-sensitive regions while suppressing background interference. An exponential moving average (EMA) copy of the student serves as the teacher for pseudo-label generation.
-
-A frozen SAM3 model provides object-level segmentation priors. The text prompts “Building”, “House”, and “Roof” are applied to each temporal image independently. Unmatched change objects are further processed using automatically generated point and box prompts. A SAM3 mask is accepted when its overlap with the corresponding teacher-predicted instance reaches the IoU threshold of 0.7; otherwise, the teacher prediction is retained.
+| Component | Configuration and role |
+| --- | --- |
+| Learning framework | Teacher–student framework for semi-supervised change detection. |
+| Student encoder | Pretrained DINOv2-Base, shared by the T1 and T2 images and fine-tuned during training. |
+| Encoder features | Features from layers 2, 5, 8, and 11. |
+| Prediction heads | Three DPT-based heads: one change detection head and two temporal localization heads for T1 and T2. |
+| DPT dimensions | Feature width: 128; four projection widths: 96, 192, 384, and 768. |
+| Temporal localization | The T1 and T2 heads predict the presence of change-related objects in their respective images. |
+| Spatial gating | Semantic features from the temporal heads guide the refinement of change features, enhancing changed regions and suppressing background interference. |
+| Teacher model | An exponential moving average (EMA) copy of the student that generates pseudo-labels. |
+| SAM3 | A frozen model that provides object-level segmentation priors for pseudo-label refinement. |
+| Text prompts | “Building”, “House”, and “Roof”, applied to each temporal image independently. |
+| Complementary prompts | Automatically generated point and box prompts are used for change objects missed by text-prompt segmentation. |
+| Instance matching | A SAM3 mask is accepted when its IoU with the corresponding teacher-predicted instance is at least 0.7; otherwise, the teacher prediction is retained. |
 
 
 ## 🗺️ Datasets
@@ -66,28 +75,8 @@ Experiments consider different proportions of labeled training samples to assess
 | Pseudo-label confidence threshold | 0.95 |
 | SAM instance-matching IoU threshold | 0.7 |
 | Maximum EMA coefficient | 0.996 |
-
-Weak augmentation includes random cropping, scaling, and horizontal flipping. Strong augmentation includes CutMix, color jittering, grayscale conversion, and Gaussian blur. The teacher generates pseudo-labels from weakly augmented unlabeled images, which supervise two strongly augmented views of the student.
-
-The supervised objective is a cross-entropy loss on labeled change masks. The unsupervised objective uses confidence-filtered pseudo-labels, while the two temporal localization heads are trained with an auxiliary combination of cross-entropy and Dice loss.
-
-SAM3 masks and teacher predictions are progressively fused using
-
-```math
-\lambda(t)=\exp\left(-\frac{t}{t_{\max}}\right).
-```
-
-The unsupervised weight is
-
-```math
-\lambda_u(t)=1-\lambda(t),
-```
-
-giving the overall objective
-
-```math
-\mathcal{L}=\mathcal{L}_l+\lambda_u(t)\left(\mathcal{L}_u+\mathcal{L}_{\mathrm{aux}}\right).
-```
+| Weak augmentation | Random cropping, scaling, and horizontal flipping |
+| Strong augmentation | CutMix, color jittering, grayscale conversion, and Gaussian blur |
 
 
 ## 📊 Representative Results on LEVIR-CD
