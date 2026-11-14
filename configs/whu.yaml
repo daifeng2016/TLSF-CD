@@ -2,7 +2,7 @@
 dataset: whu
 nclass: 2
 crop_size: 252
-data_root: D:\lm\data\WHU
+data_root: D:\data\WHU
 
 # arguments for training
 epochs: 100
