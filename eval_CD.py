@@ -192,9 +192,9 @@ def save_to_txt(metrics, headers, filename='metrics_output.txt'):
 
 if __name__ == '__main__':
 
-    GT_dir = ('D:\lm\\data\WHU\\train\label')
-    pred_dir = 'C:\\Users\lm\Desktop'
-    clolr_save_dir = 'C:\\Users\lm\Desktop\save'
+    GT_dir = ('D:\\data\WHU\\train\label')
+    pred_dir = 'C:\\Users\Desktop'
+    clolr_save_dir = 'C:\\Users\Desktop\save'
     info_txt_path = os.path.join(pred_dir, 'info.txt')
     f = open(info_txt_path, 'w+')
     data_list = os.listdir(pred_dir)
