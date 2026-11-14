@@ -15,7 +15,8 @@ TLSF-CD addresses these challenges through two complementary components:
 
 <!-- Upload the final figure and replace this comment with:
 ![Overall architecture of TLSF-CD](assets/overall_architecture.png)
---><img width="1689" height="878" alt="image" src="https://github.com/user-attachments/assets/0f478e06-8d68-47d0-96ab-9b61b5f110b8" />
+--><img width="1519" height="813" alt="image" src="https://github.com/user-attachments/assets/bff4f482-445a-479f-b374-ac69f2056ca4" />
+
 
 
 ## 🧠 Model Configuration
