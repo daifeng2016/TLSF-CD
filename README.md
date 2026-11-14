@@ -101,11 +101,9 @@ The LEVIR-CD examples include low-contrast dense buildings and large, structural
 ![Visual comparison of different SSCD methods on LEVIR-CD](assets/levir_visual_comparison.png)
 --><img width="1348" height="939" alt="image" src="https://github.com/user-attachments/assets/147fdbb1-5577-4cb6-a4fb-0b6ae9db7dad" />
 
-
-
 ## 📢 Code Availability
 
-The complete training code, trained TLSF-CD checkpoints, and reproduction instructions will be released upon paper acceptance.
+Dataset-specific configuration files are available for [LEVIR-CD](configs/levir.yaml), [WHU-CD](configs/whu.yaml), and [GZ-CD](configs/gz.yaml). The complete training code, trained TLSF-CD checkpoints, and reproduction instructions will be released upon paper acceptance.
 
 ## 📝 Citation
 
